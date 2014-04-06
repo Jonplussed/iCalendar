@@ -1,0 +1,11 @@
+# possibly created during compilation
+*.hi
+*.o
+.cabal-sandbox
+cabal.sandbox.config
+dist
+
+# everything else
+.DS_Store
+tags
+
