@@ -1,10 +1,10 @@
-module Text.ICal.VEvent
+module Text.ICalendar.VEvent
 ( VEvent(..)
 , vEvent
 ) where
 
 import Text.ParserCombinators.Parsec
-import Text.ICal.Parsec.Combinators
+import Text.ICalendar.Parsec.Combinators
 
 data VEvent = VEvent { attendee    :: String
                      , description :: String

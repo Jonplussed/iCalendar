@@ -1,11 +1,11 @@
-module Text.ICal.VCalendar
+module Text.ICalendar.VCalendar
 ( VCalendar(..)
 , vCalendar
 ) where
 
 import Text.ParserCombinators.Parsec
-import Text.ICal.Parsec.Combinators
-import Text.ICal.VEvent ( VEvent, vEvent )
+import Text.ICalendar.Parsec.Combinators
+import Text.ICalendar.VEvent ( VEvent, vEvent )
 
 data VCalendar = VCalendar { prodid   :: String
                            , version  :: String

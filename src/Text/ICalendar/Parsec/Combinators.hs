@@ -1,4 +1,4 @@
-module Text.ICal.Parsec.Combinators
+module Text.ICalendar.Parsec.Combinators
 ( assignAttrs
 , component
 , property
