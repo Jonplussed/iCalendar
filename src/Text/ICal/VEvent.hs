@@ -14,13 +14,14 @@ data VEvent = VEvent { attendee    :: String
                      , organizer   :: String
                      , summary     :: String
                      , transp      :: String
-                     , uid         :: String
-                     }
+                     , uid         :: String } deriving (Eq, Show)
 
 vEvent :: Parser VEvent
-vEvent = component "vevent" $ props newVEvent
+vEvent = component "vevent" $ attrs
   where
-    props = chainr1 $ choice properties
+    attrs = do
+      fs <- many1 $ choice attributes
+      return . foldr1 (.) fs $ newVEvent
 
 --
 -- private functions
@@ -29,8 +30,8 @@ vEvent = component "vevent" $ props newVEvent
 newVEvent :: VEvent
 newVEvent = VEvent "" "" "" "" "" "" "" "" ""
 
-properties :: [Parser (VEvent -> VEvent)]
-properties = [ property "attendee"    $ \v e -> e { attendee = v }
+attributes :: [Parser (VEvent -> VEvent)]
+attributes = [ property "attendee"    $ \v e -> e { attendee = v }
              , property "description" $ \v e -> e { description = v }
              , property "dtstart"     $ \v e -> e { dtstart = v }
              , property "duration"    $ \v e -> e { duration = v }

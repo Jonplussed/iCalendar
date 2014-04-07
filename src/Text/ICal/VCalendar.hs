@@ -1,14 +1,14 @@
-module Text.ICal.VCalendar (vCalendar) where
+module Text.ICal.VCalendar ( vCalendar ) where
 
 import Text.ParserCombinators.Parsec
 import Text.ICal.Parsec.Combinators
-import Text.ICal.VEvent (vEvent)
+import Text.ICal.VEvent ( VEvent(..), vEvent )
 
-data VCalendar = VEVENT        VEvent
-               | PRODID        String
-               | VERSION       String
-               | CALSCALE      String
-               | METHOD        String
+data VCalendar = VCalendar { prodid   :: String
+                           , version  :: String
+                           , calscale :: String
+                           , method   :: String
+                           , vEvents  :: [VEvent] } deriving (Eq, Show)
 
 vCalendar :: Parser [[String]]
 vCalendar = do
