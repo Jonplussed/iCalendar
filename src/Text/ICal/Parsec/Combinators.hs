@@ -1,13 +1,19 @@
 module Text.ICal.Parsec.Combinators
-( component
+( assignAttrs
+, component
 , property
 ) where
 
 import Data.Char (toUpper)
 import Text.ParserCombinators.Parsec
 
-component :: String -> Parser a -> Parser a
-component name parser = between open close parser
+assignAttrs :: a -> [Parser (a -> a)] -> Parser a
+assignAttrs record parsers = do
+    fs <- many1 $ choice parsers
+    return . foldr (.) id fs $ record
+
+component :: String -> Parser a -> (a -> b) -> Parser b
+component name parser f = between open close parser >>= return . f
   where
     open  = string ("BEGIN:" ++ name') >> newLine
     close = string ("END:" ++ name') >> newLine

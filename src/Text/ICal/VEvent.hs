@@ -17,18 +17,10 @@ data VEvent = VEvent { attendee    :: String
                      , uid         :: String } deriving (Eq, Show)
 
 vEvent :: Parser VEvent
-vEvent = component "vevent" $ attrs
-  where
-    attrs = do
-      fs <- many1 $ choice attributes
-      return . foldr1 (.) fs $ newVEvent
+vEvent = assignAttrs empty attributes
 
---
--- private functions
---
-
-newVEvent :: VEvent
-newVEvent = VEvent "" "" "" "" "" "" "" "" ""
+empty :: VEvent
+empty = VEvent "" "" "" "" "" "" "" "" ""
 
 attributes :: [Parser (VEvent -> VEvent)]
 attributes = [ property "attendee"    $ \v e -> e { attendee = v }

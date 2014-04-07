@@ -1,8 +1,11 @@
-module Text.ICal.VCalendar ( vCalendar ) where
+module Text.ICal.VCalendar
+( VCalendar(..)
+, vCalendar
+) where
 
 import Text.ParserCombinators.Parsec
 import Text.ICal.Parsec.Combinators
-import Text.ICal.VEvent ( VEvent(..), vEvent )
+import Text.ICal.VEvent ( VEvent, vEvent )
 
 data VCalendar = VCalendar { prodid   :: String
                            , version  :: String
@@ -10,22 +13,19 @@ data VCalendar = VCalendar { prodid   :: String
                            , method   :: String
                            , vEvents  :: [VEvent] } deriving (Eq, Show)
 
-vCalendar :: Parser [[String]]
+vCalendar :: Parser VCalendar
 vCalendar = do
-    tree <- component "vcalendar" (props >> comps)
+    cal <- component "vcalendar" (assignAttrs empty attributes) id
     eof
-    return tree
-  where
-    props = many1 . choice $ optionalProps properties
-    comps = many1 vEvent
+    return cal
 
---
--- private functions
---
+empty :: VCalendar
+empty = VCalendar "" "" "" "" []
 
-properties :: [String]
-properties = [ "prodid"
-             , "version"
-             , "calscale"
-             , "method"
+attributes :: [Parser (VCalendar -> VCalendar)]
+attributes = [ property  "prodid"         $ \v c -> c { prodid = v }
+             , property  "version"        $ \v c -> c { version = v }
+             , property  "calscale"       $ \v c -> c { calscale = v }
+             , property  "method"         $ \v c -> c { method = v }
+             , component "vevent" vEvent  $ \v c -> c { vEvents = vEvents c ++ [v] }
              ]
