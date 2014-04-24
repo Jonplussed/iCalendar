@@ -1,4 +1,4 @@
-module Text.ICalendar.VEvent
+module Text.ICalendar.Component.VEvent
 ( VEvent(..)
 , vEvent
 ) where
@@ -13,14 +13,29 @@ data VEvent = VEvent { attendee    :: String
                      , location    :: String
                      , organizer   :: String
                      , summary     :: String
-                     , transp      :: String
-                     , uid         :: String } deriving (Eq, Show)
+                     , transp      :: Transparency
+                     , uid         :: String
+                     , eWarnings    :: [String] } deriving (Eq, Show)
+
+data Transparency = Transparent
+                  | Opaque
+                  deriving (Eq, Show)
 
 vEvent :: Parser VEvent
 vEvent = assignAttrs empty attributes
 
 empty :: VEvent
-empty = VEvent "" "" "" "" "" "" "" "" ""
+empty = VEvent { attendee     = ""
+               , description  = ""
+               , dtstart      = ""
+               , duration     = ""
+               , location     = ""
+               , organizer    = ""
+               , summary      = ""
+               , transp       = Opaque
+               , uid          = ""
+               , eWarnings     = []
+               }
 
 attributes :: [Parser (VEvent -> VEvent)]
 attributes = [ property "attendee"    $ \v e -> e { attendee = v }
@@ -30,6 +45,9 @@ attributes = [ property "attendee"    $ \v e -> e { attendee = v }
              , property "location"    $ \v e -> e { location = v }
              , property "organizer"   $ \v e -> e { organizer = v }
              , property "summary"     $ \v e -> e { summary = v }
-             , property "transp"      $ \v e -> e { transp = v }
+             , property "transp"      $ \v e -> e { transp = transparency v }
              , property "uid"         $ \v e -> e { uid = v }
              ]
+
+transparency :: String -> Transparency
+transparency t = if t == "TRANSPARENT" then Transparent else Opaque

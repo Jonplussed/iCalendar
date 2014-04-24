@@ -1,19 +1,20 @@
 module Text.ICalendar
 ( ICalendar
-, VCalendar(..)
-, VEvent(..)
+--, VCalendar(..)
+--, VEvent(..)
 , fromFile
 , fromString
 ) where
 
 import Text.ParserCombinators.Parsec
-import Text.ICalendar.VCalendar ( VCalendar(..), vCalendar )
-import Text.ICalendar.VEvent ( VEvent(..) )
+import Text.ICalendar.Parsec.Combinators
+-- import Text.ICalendar.Component.VCalendar ( VCalendar(..), vCalendar )
+-- import Text.ICalendar.Component.VEvent ( VEvent(..) )
 
-type ICalendar = Either ParseError VCalendar
+type ICalendar = Either ParseError ICalMap
 
 fromFile :: String -> IO ICalendar
 fromFile path = readFile path >>= return . fromString
 
 fromString :: String -> ICalendar
-fromString text = parse vCalendar "iCalendar" text
+fromString text = parse iCalendar "iCalendar" text
