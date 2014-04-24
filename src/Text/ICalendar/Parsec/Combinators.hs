@@ -25,9 +25,8 @@ iCalendar = do
 
 property :: Parser (ICalMap -> ICalMap)
 property = do
-    tag <- manyTill upper (try $ char ':')
-    lines <- many1 anyChar
-    newLine
+    tag <- manyTill upper (char ':')
+    lines <- manyTill anyChar newLine
     return $ H.insertWith (++) (downcase tag) [Property $ lines]
 
 component :: Parser (ICalMap -> ICalMap)
