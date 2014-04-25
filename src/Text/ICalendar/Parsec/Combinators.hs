@@ -5,6 +5,7 @@ import Text.ParserCombinators.Parsec
 import qualified Data.HashMap.Lazy as H
 
 type ICalMap = H.HashMap String [Param]
+type ICalMapFn = ICalMap -> ICalMap
 
 data Param = Property String
            | Component ICalMap
@@ -12,41 +13,29 @@ data Param = Property String
 
 iCalendar :: Parser ICalMap
 iCalendar = do
-    cal <- component
+    params <- component
     eof
-    return $ cal H.empty
+    return $ params H.empty
 
--- property :: Parser (ICalMap -> ICalMap)
--- property = do
---     tag <- manyTill upper (try $ char ':')
---     lines <- sepBy1 (many1 anyChar) contentBreak
---     newLine
---     return $ H.insertWith (++) (downcase tag) [Property $ unwords lines]
+-- private functions
 
-property :: Parser (ICalMap -> ICalMap)
-property = do
-    tag <- manyTill upper (char ':')
-    lines <- manyTill anyChar newLine
-    return $ H.insertWith (++) (downcase tag) [Property $ lines]
-
-component :: Parser (ICalMap -> ICalMap)
+component :: Parser ICalMapFn
 component = do
     string "BEGIN:"
-    tag <- manyTill upper newLine
-    fs <- manyTill (component <|> property) (string $ "END:" ++ tag)
+    key <- manyTill upper newLine
+    fs <- manyTill (component <|> property) (string $ "END:" ++ key)
     newLine
-    return $ H.insertWith (++) (downcase tag) [Component $ apply fs]
-  where
-    apply fs = foldr1 (.) fs H.empty
+    update key (Component $ foldr1 (.) fs H.empty)
 
 newLine :: Parser String
 newLine = string "\r\n"
 
-contentBreak :: Parser Char
-contentBreak = newLine >> space
+property :: Parser ICalMapFn
+property = do
+    key <- manyTill upper $ char ':'
+    --segments <- sepBy1 (many1 anyChar) (newLine >> space)
+    segments <- manyTill anyChar newLine
+    update key (Property $ segments)
 
-upcase :: String -> String
-upcase = map toUpper
-
-downcase :: String -> String
-downcase = map toLower
+update :: String -> Param -> Parser ICalMapFn
+update key param = return $ H.insertWith (++) (map toLower key) [param]

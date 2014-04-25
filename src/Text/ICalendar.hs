@@ -8,8 +8,6 @@ module Text.ICalendar
 
 import Text.ParserCombinators.Parsec
 import Text.ICalendar.Parsec.Combinators
--- import Text.ICalendar.Component.VCalendar ( VCalendar(..), vCalendar )
--- import Text.ICalendar.Component.VEvent ( VEvent(..) )
 
 type ICalendar = Either ParseError ICalMap
 
