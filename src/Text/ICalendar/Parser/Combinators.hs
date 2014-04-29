@@ -6,12 +6,12 @@ import qualified Data.HashMap.Lazy as H
 
 data ICalParam = EmptyNode
                | Property [String]
-               | Component [ICalMap]
+               | Component [ICalTree]
                | NodeNameConflict
                deriving (Eq, Show)
 
-type ICalMap = H.HashMap String ICalParam
-type ICalMapFn = ICalMap -> ICalMap
+type ICalTree = H.HashMap String ICalParam
+type ICalTreeS = ICalTree -> ICalTree
 
 instance Monoid ICalParam where
   mempty = EmptyNode
@@ -20,7 +20,7 @@ instance Monoid ICalParam where
   Component x `mappend` Component y = Component $ x ++ y
   _ `mappend` _ = NodeNameConflict
 
-iCalendar :: Parser ICalMap
+iCalendar :: Parser ICalTree
 iCalendar = do
     params <- component
     eof
@@ -28,7 +28,7 @@ iCalendar = do
 
 -- private functions
 
-component :: Parser ICalMapFn
+component :: Parser ICalTreeS
 component = do
     string "BEGIN:"
     key <- manyTill upper newLine
@@ -39,12 +39,12 @@ component = do
 newLine :: Parser String
 newLine = string "\r\n"
 
-property :: Parser ICalMapFn
+property :: Parser ICalTreeS
 property = do
     key <- manyTill upper $ char ':'
     --segments <- sepBy1 (many1 anyChar) (newLine >> space)
     segments <- manyTill anyChar newLine
     update key $ Property [segments]
 
-update :: String -> ICalParam -> Parser ICalMapFn
+update :: String -> ICalParam -> Parser ICalTreeS
 update key param = return $ H.insertWith mappend key param
