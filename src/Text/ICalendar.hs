@@ -1,13 +1,11 @@
 module Text.ICalendar
 ( ICalendar
---, VCalendar(..)
---, VEvent(..)
 , fromFile
 , fromString
 ) where
 
 import Text.ParserCombinators.Parsec
-import Text.ICalendar.Parsec.Combinators
+import Text.ICalendar.Parser.Combinators
 
 type ICalendar = Either ParseError ICalMap
 
