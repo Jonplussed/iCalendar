@@ -17,7 +17,7 @@ data VCalendar = VCalendar { prodid   :: String
                            --, vEvents  :: [VEvent]
                            }
 
-vCalendar :: ICalTree -> Either ValidationError VCalendar
+vCalendar :: ICalTree -> Either ParseError VCalendar
 vCalendar tree = do
   prodid    <- req1 "prodid" tree
   version   <- req1 "version" tree
