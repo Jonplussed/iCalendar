@@ -15,12 +15,12 @@ reqComp1 node builder tree =
     Just (Component [x] _)  -> builder x
     x                       -> componentErrors node x
 
--- optCompN :: String -> CompBuilder a -> ICalTree -> Either ParseError [a]
--- optCompN node builder tree =
---   case H.lookup node tree of
---     Just (Component x _)  -> map builder x
---     Nothing               -> Right []
---     x                     -> componentErrors node x
+optCompN :: String -> CompBuilder a -> ICalTree -> Either ParseError [a]
+optCompN node builder tree =
+  case H.lookup node tree of
+    Just (Component x _)  -> sequence $ map builder x
+    Nothing               -> Right []
+    x                     -> componentErrors node x
 
 optProp1 :: String -> ICalTree -> Either ParseError (Maybe String)
 optProp1 node tree =
