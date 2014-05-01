@@ -5,31 +5,44 @@ module Text.ICalendar.Component.VEvent
 , vEvent
 ) where
 
-import Text.Parsec.Error
+import Control.Applicative ((<$>))
+import Text.Parsec.Error (ParseError)
 
 import Text.ICalendar.Parser.Combinators
 import Text.ICalendar.Parser.Validators
 
-data VEvent = VEvent { dtstart      :: String
-                     , attendee     :: [String]
-                     , uid          :: Maybe String
+data Transparency = Transparent
+                  | Opaque
+                  deriving (Eq, Show)
+
+data VEvent = VEvent { startDate    :: String
+                     , attendees    :: [String]
+                     , uniqueId     :: Maybe String
                      , duration     :: Maybe String
                      , organizer    :: Maybe String
                      , location     :: Maybe String
                      , summary      :: Maybe String
                      , description  :: Maybe String
-                     , transp       :: Maybe String
+                     , transparency :: Transparency
                      } deriving (Eq, Show)
 
-vEvent :: ICalTree -> Either ParseError VEvent
+vEvent :: ICalTree -> ICalendar VEvent
 vEvent tree = do
-  dtstart     <- reqProp1 "DTSTART"     tree
-  attendee    <- optPropN "ATTENDEE"    tree
-  uid         <- optProp1 "UID"         tree
+  startDate   <- reqProp1 "DTSTART"     tree
+  attendees   <- optPropN "ATTENDEE"    tree
+  uniqueId    <- optProp1 "UID"         tree
   duration    <- optProp1 "DURATION"    tree
   organizer   <- optProp1 "ORGANIZER"   tree
   location    <- optProp1 "LOCATION"    tree
   summary     <- optProp1 "SUMMARY"     tree
   description <- optProp1 "DESCRIPTION" tree
-  transp      <- optProp1 "TRANSP"      tree
+
+  transparency <- transparent <$> optProp1 "TRANSP" tree
   return VEvent {..}
+
+-- private functions
+
+transparent :: Maybe String -> Transparency
+transparent t = if t == Just "TRANSPARENT"
+                 then Transparent
+                 else Opaque

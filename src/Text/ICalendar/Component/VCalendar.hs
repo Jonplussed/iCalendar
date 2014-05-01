@@ -5,24 +5,37 @@ module Text.ICalendar.Component.VCalendar
 , vCalendar
 ) where
 
-import Text.Parsec.Error
+import Control.Applicative ((<$>))
+import Text.Parsec.Error (ParseError)
 
 import Text.ICalendar.Parser.Combinators
 import Text.ICalendar.Parser.Validators
 import Text.ICalendar.Component.VEvent
 
-data VCalendar = VCalendar { prodid   :: String
-                           , version  :: String
-                           , calscale :: Maybe String
-                           , method   :: Maybe String
-                           , vEvents  :: [VEvent]
+data CalendarScale = Gregorian
+                   | Unsupported
+                   deriving (Eq, Show)
+
+data VCalendar = VCalendar { productId  :: String
+                           , version    :: String
+                           , scale      :: CalendarScale
+                           , method     :: Maybe String
+                           , events     :: [VEvent]
                            } deriving (Eq, Show)
 
-vCalendar :: ICalTree -> Either ParseError VCalendar
+vCalendar :: ICalTree -> ICalendar VCalendar
 vCalendar tree = do
-  prodid    <- reqProp1 "PRODID"        tree
+  productId <- reqProp1 "PRODID"        tree
   version   <- reqProp1 "VERSION"       tree
-  calscale  <- optProp1 "CALSCALE"      tree
   method    <- optProp1 "METHOD"        tree
-  vEvents   <- optCompN "VEVENT" vEvent tree
+  events    <- optCompN "VEVENT" vEvent tree
+
+  scale <- calendarScale <$> optProp1 "CALSCALE" tree
   return VCalendar {..}
+
+-- private functions
+
+calendarScale :: Maybe String -> CalendarScale
+calendarScale s = if s == Just "GREGORIAN"
+                  then Gregorian
+                  else Unsupported
