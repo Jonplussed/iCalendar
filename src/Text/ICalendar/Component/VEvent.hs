@@ -28,21 +28,20 @@ data VEvent = VEvent { startDate    :: String
 
 vEvent :: ICalTree -> ICalendar VEvent
 vEvent tree = do
-  startDate   <- reqProp1 "DTSTART"     tree
-  attendees   <- optPropN "ATTENDEE"    tree
-  uniqueId    <- optProp1 "UID"         tree
-  duration    <- optProp1 "DURATION"    tree
-  organizer   <- optProp1 "ORGANIZER"   tree
-  location    <- optProp1 "LOCATION"    tree
-  summary     <- optProp1 "SUMMARY"     tree
-  description <- optProp1 "DESCRIPTION" tree
-
-  transparency <- transparent <$> optProp1 "TRANSP" tree
-  return VEvent {..}
+    startDate     <-              reqProp1 "DTSTART"     tree
+    attendees     <-              optPropN "ATTENDEE"    tree
+    uniqueId      <-              optProp1 "UID"         tree
+    duration      <-              optProp1 "DURATION"    tree
+    organizer     <-              optProp1 "ORGANIZER"   tree
+    location      <-              optProp1 "LOCATION"    tree
+    summary       <-              optProp1 "SUMMARY"     tree
+    description   <-              optProp1 "DESCRIPTION" tree
+    transparency  <- toTransp <$> optProp1 "TRANSP"      tree
+    return VEvent {..}
 
 -- private functions
 
-transparent :: Maybe String -> Transparency
-transparent t = if t == Just "TRANSPARENT"
-                 then Transparent
-                 else Opaque
+toTransp :: Maybe String -> Transparency
+toTransp str = if str == Just "TRANSPARENT"
+               then Transparent
+               else Opaque

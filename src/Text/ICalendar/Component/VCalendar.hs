@@ -25,17 +25,16 @@ data VCalendar = VCalendar { productId  :: String
 
 vCalendar :: ICalTree -> ICalendar VCalendar
 vCalendar tree = do
-  productId <- reqProp1 "PRODID"        tree
-  version   <- reqProp1 "VERSION"       tree
-  method    <- optProp1 "METHOD"        tree
-  events    <- optCompN "VEVENT" vEvent tree
-
-  scale <- calendarScale <$> optProp1 "CALSCALE" tree
-  return VCalendar {..}
+    productId <-             reqProp1  "PRODID"        tree
+    version   <-             reqProp1  "VERSION"       tree
+    method    <-             optProp1  "METHOD"        tree
+    scale     <- toScale <$> optProp1  "CALSCALE"      tree
+    events    <-             optCompN  "VEVENT" vEvent tree
+    return VCalendar {..}
 
 -- private functions
 
-calendarScale :: Maybe String -> CalendarScale
-calendarScale s = if s == Just "GREGORIAN"
-                  then Gregorian
-                  else Unsupported
+toScale :: Maybe String -> CalendarScale
+toScale str = if str == Just "GREGORIAN"
+              then Gregorian
+              else Unsupported
