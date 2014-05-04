@@ -6,16 +6,20 @@ module Text.ICalendar.Component.VEvent
 ) where
 
 import Control.Applicative ((<$>))
+import Data.Time
 import Text.Parsec.Error (ParseError)
 
 import Text.ICalendar.Parser.Combinators
 import Text.ICalendar.Parser.Validators
 
+data Interval = Duration NominalDiffTime
+              | EndDate UTCTime
+
 data Transparency = Transparent
                   | Opaque
                   deriving (Eq, Show)
 
-data VEvent = VEvent { startDate    :: String
+data VEvent = VEvent { startDate    :: UTCTime
                      , attendees    :: [String]
                      , uniqueId     :: Maybe String
                      , duration     :: Maybe String
@@ -24,19 +28,21 @@ data VEvent = VEvent { startDate    :: String
                      , summary      :: Maybe String
                      , description  :: Maybe String
                      , transparency :: Transparency
+                     , interval     :: Interval
                      } deriving (Eq, Show)
 
 vEvent :: ICalTree -> ICalendar VEvent
 vEvent tree = do
-    startDate     <-              reqProp1 "DTSTART"     tree
-    attendees     <-              optPropN "ATTENDEE"    tree
-    uniqueId      <-              optProp1 "UID"         tree
-    duration      <-              optProp1 "DURATION"    tree
-    organizer     <-              optProp1 "ORGANIZER"   tree
-    location      <-              optProp1 "LOCATION"    tree
-    summary       <-              optProp1 "SUMMARY"     tree
-    description   <-              optProp1 "DESCRIPTION" tree
-    transparency  <- toTransp <$> optProp1 "TRANSP"      tree
+    startDate     <- toDate   <$> reqProp1   "DTSTART"          tree
+    attendees     <-              optPropN   "ATTENDEE"         tree
+    uniqueId      <-              optProp1   "UID"              tree
+    duration      <-              optProp1   "DURATION"         tree
+    organizer     <-              optProp1   "ORGANIZER"        tree
+    location      <-              optProp1   "LOCATION"         tree
+    summary       <-              optProp1   "SUMMARY"          tree
+    description   <-              optProp1   "DESCRIPTION"      tree
+    transparency  <- toTransp <$> optProp1   "TRANSP"           tree
+    interval      <- reqCoProp1 ("DURATION", toDuration) ("DTEND", toDate) tree
     return VEvent {..}
 
 -- private functions
