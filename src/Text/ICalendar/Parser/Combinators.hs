@@ -12,21 +12,11 @@ import Text.Parsec.Char
 import Text.Parsec.Prim
 import Text.Parsec.Pos
 
-data ICalParam = EmptyNode
-               | Property [String] SourcePos
-               | Component [ICalTree] SourcePos
-               | NodeNameConflict SourcePos
+data ICalParam = Property String SourcePos
+               | Component ICalTree SourcePos
                deriving (Eq, Show)
 
-instance Monoid ICalParam where
-  mempty = EmptyNode
-  EmptyNode `mappend` x = x
-  Property s1 p1 `mappend` Property s2 p2 = Property (s1 ++ s2) p2
-  Component c1 p1 `mappend` Component c2 p2 = Component (c1 ++ c2) p2
-  _ `mappend` (Property _ p2) = NodeNameConflict p2
-  _ `mappend` (Component _ p2) = NodeNameConflict p2
-
-type ICalTree = H.HashMap String ICalParam
+type ICalTree = H.HashMap String [ICalParam]
 type ICalTreeS = ICalTree -> ICalTree
 
 iCalendar :: Parser ICalTree
@@ -44,7 +34,7 @@ component = do
     key <- manyTill upper newLine
     fs <- manyTill (component <|> property) (string $ "END:" ++ key)
     newLine
-    update key $ Component [foldr1 (.) fs H.empty] pos
+    update key $ Component (foldr1 (.) fs H.empty) pos
 
 newLine :: Parser String
 newLine = string "\r\n"
@@ -55,7 +45,7 @@ property = do
     key <- manyTill upper $ char ':'
     --segments <- sepBy1 (many1 anyChar) (newLine >> space)
     segments <- manyTill anyChar newLine
-    update key $ Property [segments] pos
+    update key $ Property segments pos
 
 update :: String -> ICalParam -> Parser ICalTreeS
-update key param = return $ H.insertWith mappend key param
+update key param = return $ H.insertWith (++) key [param]
