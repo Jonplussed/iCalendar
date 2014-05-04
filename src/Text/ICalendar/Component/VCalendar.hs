@@ -8,8 +8,8 @@ module Text.ICalendar.Component.VCalendar
 import Control.Applicative ((<$>))
 import Text.Parsec.Error (ParseError)
 
-import Text.ICalendar.Parser.Combinators
-import Text.ICalendar.Parser.Validators
+import Text.ICalendar.Parser.Combinator
+import Text.ICalendar.Parser.Validator
 import Text.ICalendar.Component.VEvent
 
 data CalendarScale = Gregorian

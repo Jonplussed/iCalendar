@@ -1,7 +1,8 @@
-module Text.ICalendar.Parser.Combinators
+module Text.ICalendar.Parser.Combinator
 ( ICalParam (..)
 , ICalTree
 , iCalendar
+, paramPos
 ) where
 
 import Data.Monoid
@@ -24,6 +25,10 @@ iCalendar = do
     params <- component
     eof
     return $ params H.empty
+
+paramPos :: ICalParam -> SourcePos
+paramPos (Property _ p)  = p
+paramPos (Component _ p) = p
 
 -- private functions
 

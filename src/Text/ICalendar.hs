@@ -6,8 +6,8 @@ module Text.ICalendar
 import Text.Parsec (parse)
 
 import Text.ICalendar.Component.VCalendar
-import Text.ICalendar.Parser.Combinators
-import Text.ICalendar.Parser.Validators
+import Text.ICalendar.Parser.Combinator
+import Text.ICalendar.Parser.Validator
 
 fromFile :: String -> IO (ICalendar VCalendar)
 fromFile path = readFile path >>= return . fromString

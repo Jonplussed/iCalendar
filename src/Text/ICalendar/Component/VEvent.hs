@@ -9,8 +9,8 @@ import Control.Applicative ((<$>))
 import Data.Time
 import Text.Parsec.Error (ParseError)
 
-import Text.ICalendar.Parser.Combinators
-import Text.ICalendar.Parser.Validators
+import Text.ICalendar.Parser.Combinator
+import Text.ICalendar.Parser.Validator
 
 data Interval = Duration NominalDiffTime
               | EndDate UTCTime
