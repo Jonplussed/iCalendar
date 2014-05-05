@@ -22,7 +22,6 @@ data Transparency = Transparent
 data VEvent = VEvent { startDate    :: UTCTime
                      , attendees    :: [String]
                      , uniqueId     :: Maybe String
-                     , duration     :: Maybe String
                      , organizer    :: Maybe String
                      , location     :: Maybe String
                      , summary      :: Maybe String
@@ -48,6 +47,6 @@ vEvent tree = do
 -- private functions
 
 toTransp :: Maybe String -> Transparency
-toTransp str = if str == Just "TRANSPARENT"
-               then Transparent
-               else Opaque
+toTransp mStr = if mStr == return "TRANSPARENT"
+                then Transparent
+                else Opaque
