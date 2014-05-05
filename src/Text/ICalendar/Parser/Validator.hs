@@ -6,7 +6,7 @@ module Text.ICalendar.Parser.Validator
 , reqProp1
 , optPropN
 , reqPropN
---, reqCoProp1
+, reqCoProp1
 ) where
 
 import Control.Applicative ((<$>))
@@ -49,15 +49,15 @@ optProp1 node tree =
 
 reqPropN :: String -> ICalTree -> ICalendar [String]
 reqPropN node tree =
-  case H.lookup node tree of
-    Just all@(_:_) -> propValues node all
-    _              -> reqNError node noPosition
+    case H.lookup node tree of
+      Just all@(_:_) -> propValues node all
+      _              -> reqNError node noPosition
 
 optPropN :: String -> ICalTree -> ICalendar [String]
 optPropN node tree =
-  case H.lookup node tree of
-    Just x  -> propValues node x
-    Nothing -> return []
+    case H.lookup node tree of
+      Just x  -> propValues node x
+      Nothing -> return []
 
 reqCoProp1 :: CoPropFn a -> CoPropFn a -> ICalTree -> ICalendar a
 reqCoProp1 (n1,f1) (n2,f2) tree = do
@@ -73,18 +73,18 @@ reqCoProp1 (n1,f1) (n2,f2) tree = do
 
 propValue :: String -> ICalParam -> ICalendar String
 propValue node param =
-  case param of
-    Property v _    -> Right v
-    Component _ pos -> notPropError node pos
+    case param of
+      Property v _    -> return v
+      Component _ pos -> notPropError node pos
 
 propValues :: String -> [ICalParam] -> ICalendar [String]
 propValues node = sequence . map (propValue node)
 
 compValue :: String -> Builder a -> ICalParam -> ICalendar a
 compValue node builder param =
-  case param of
-    Property _ pos -> notCompError node pos
-    Component v _  -> builder v
+    case param of
+      Property _ pos -> notCompError node pos
+      Component v _  -> builder v
 
 compValues :: String -> Builder a -> [ICalParam] -> ICalendar [a]
 compValues node builder = sequence . map (compValue node builder)
