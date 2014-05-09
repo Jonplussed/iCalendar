@@ -6,9 +6,10 @@ import Text.Parsec.Combinator
 import Text.Parsec.Char
 import Text.Parsec.Prim
 
+import Text.ICalendar.Type.All
 import Text.ICalendar.Parser.Error
 
-toDuration :: Parser DiffTime
+toDuration :: Parser ICalData
 toDuration = do
     sign <- try $ char '+' <|> char '-'
     char 'P'
@@ -18,7 +19,7 @@ toDuration = do
     hours <- interval 'H'
     minutes <- interval 'M'
     seconds <- interval 'S'
-    return $ toDiffTime weeks days hours minutes seconds
+    return . ICalDuration $ toDiffTime weeks days hours minutes seconds
 
 -- private functions
 

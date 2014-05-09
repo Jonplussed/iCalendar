@@ -13,8 +13,6 @@ module Text.ICalendar.Parser.Error
 import Text.Parsec.Error (ParseError, Message (Message), newErrorMessage)
 import Text.Parsec.Pos (SourcePos)
 
-import Text.ICalendar.Parser.Combinator
-
 type ICalendar a = Either ParseError a
 
 req1Error, reqNError, opt1Error, notPropError, notCompError

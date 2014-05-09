@@ -1,34 +1,27 @@
 module Text.ICalendar.Parser.Combinator
-( ICalParam (..)
+( ICalData (..)
 , ICalTree
 , iCalendar
-, paramPos
 ) where
 
+import qualified Data.Map as M
 import Data.Monoid
-import qualified Data.HashMap.Lazy as H
 import Text.Parsec.String
 import Text.Parsec.Combinator
 import Text.Parsec.Char
 import Text.Parsec.Prim
 import Text.Parsec.Pos
 
-data ICalParam = Property String SourcePos
-               | Component ICalTree SourcePos
-               deriving (Eq, Show)
+import Text.ICalendar.Type
 
-type ICalTree = H.HashMap String [ICalParam]
+type ICalTree = M.Map String [ICalData]
 type ICalTreeS = ICalTree -> ICalTree
 
 iCalendar :: Parser ICalTree
 iCalendar = do
     params <- component
     eof
-    return $ params H.empty
-
-paramPos :: ICalParam -> SourcePos
-paramPos (Property _ p)  = p
-paramPos (Component _ p) = p
+    return $ params M.empty
 
 -- private functions
 
@@ -39,7 +32,7 @@ component = do
     key <- manyTill upper newLine
     fs <- manyTill (component <|> property) (string $ "END:" ++ key)
     newLine
-    update key $ Component (foldr1 (.) fs H.empty) pos
+    update key $ ICalComponent (foldr1 (.) fs M.empty) pos
 
 newLine :: Parser String
 newLine = string "\r\n"
@@ -48,9 +41,9 @@ property :: Parser ICalTreeS
 property = do
     pos <- getPosition
     key <- manyTill upper $ char ':'
-    --segments <- sepBy1 (many1 anyChar) (newLine >> space)
-    segments <- manyTill anyChar newLine
-    update key $ Property segments pos
+    value <- toICalDataType key
+    newLine
+    update key value
 
-update :: String -> ICalParam -> Parser ICalTreeS
-update key param = return $ H.insertWith (++) key [param]
+update :: String -> ICalData -> Parser ICalTreeS
+update key param = return $ M.insertWith (++) key [param]
