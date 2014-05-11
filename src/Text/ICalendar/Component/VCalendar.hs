@@ -1,40 +1,29 @@
-{-# LANGUAGE RecordWildCards #-}
+module Text.ICalendar.Component.VCalendar where
 
-module Text.ICalendar.Component.VCalendar
-( VCalendar(..)
-, vCalendar
-) where
+-- haskell platform libraries
+import Control.Applicative
+import Text.Parsec.String
 
-import Control.Applicative ((<$>))
-import Text.Parsec.Error (ParseError)
+-- imported libraries
+import Text.Parsec.Permutation
 
+-- local libraries
 import Text.ICalendar.Parser.Combinator
-import Text.ICalendar.Parser.Validator
-import Text.ICalendar.Component.VEvent
+import Text.ICalendar.Type.Text
 
 data CalendarScale = Gregorian
-                   | Unsupported
+                   | Unsupported String
                    deriving (Eq, Show)
 
 data VCalendar = VCalendar { productId  :: String
                            , version    :: String
-                           , scale      :: CalendarScale
+                           , scale      :: Maybe String
                            , method     :: Maybe String
-                           , events     :: [VEvent]
+                           --, events     :: [VEvent]
                            } deriving (Eq, Show)
 
-vCalendar :: ICalTree -> ICalendar VCalendar
-vCalendar tree = do
-    productId <-             reqProp1  "PRODID"        tree
-    version   <-             reqProp1  "VERSION"       tree
-    method    <-             optProp1  "METHOD"        tree
-    scale     <- toScale <$> optProp1  "CALSCALE"      tree
-    events    <-             optCompN  "VEVENT" vEvent tree
-    return VCalendar {..}
-
--- private functions
-
-toScale :: Maybe String -> CalendarScale
-toScale str = if str == Just "GREGORIAN"
-              then Gregorian
-              else Unsupported
+vCalendar :: Parser VCalendar
+vCalendar = runPermParser $ VCalendar <$> reqProp1 toText "prodid"
+                                      <*> reqProp1 toText "version"
+                                      <*> optProp1 toText "calscale"
+                                      <*> optProp1 toText "method"

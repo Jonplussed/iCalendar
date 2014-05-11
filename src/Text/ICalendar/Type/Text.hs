@@ -4,7 +4,7 @@ import Text.Parsec.String
 import Text.Parsec.Combinator
 import Text.Parsec.Char
 
-import Text.ICalendar.Type.All
+import Text.ICalendar.Parser.Combinator
 
-toText :: Parser ICalData
-toText = many1 anyChar >>= return . ICalText
+toText :: Parser String
+toText = manyTill anyChar newLine >>= return

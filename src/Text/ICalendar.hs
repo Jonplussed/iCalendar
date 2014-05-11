@@ -3,17 +3,16 @@ module Text.ICalendar
 , fromString
 ) where
 
-import Text.Parsec (parse)
+import Text.Parsec
+import Text.Parsec.Error
 
-import Text.ICalendar.Component.VCalendar
-import Text.ICalendar.Parser.Combinator
-import Text.ICalendar.Parser.Validator
+import Text.ICalendar.Parser (iCalendar)
+import Text.ICalendar.Component.VCalendar (VCalendar)
 
-fromFile :: String -> IO (ICalendar VCalendar)
+type ICalendar = Either ParseError VCalendar
+
+fromFile :: String -> IO ICalendar
 fromFile path = readFile path >>= return . fromString
 
-fromString :: String -> ICalendar VCalendar
-fromString text =  iCalTree >>= iCalRoot
-  where
-    iCalTree = parse iCalendar "iCalendar" text
-    iCalRoot = reqComp1 "VCALENDAR" vCalendar
+fromString :: String -> ICalendar
+fromString text =  parse iCalendar "iCalendar" text

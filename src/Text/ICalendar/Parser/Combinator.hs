@@ -1,49 +1,27 @@
-module Text.ICalendar.Parser.Combinator
-( ICalData (..)
-, ICalTree
-, iCalendar
-) where
+module Text.ICalendar.Parser.Combinator where
 
-import qualified Data.Map as M
-import Data.Monoid
+import Data.Char
 import Text.Parsec.String
-import Text.Parsec.Combinator
 import Text.Parsec.Char
-import Text.Parsec.Prim
-import Text.Parsec.Pos
 
-import Text.ICalendar.Type
-
-type ICalTree = M.Map String [ICalData]
-type ICalTreeS = ICalTree -> ICalTree
-
-iCalendar :: Parser ICalTree
-iCalendar = do
-    params <- component
-    eof
-    return $ params M.empty
-
--- private functions
-
-component :: Parser ICalTreeS
-component = do
-    pos <- getPosition
-    string "BEGIN:"
-    key <- manyTill upper newLine
-    fs <- manyTill (component <|> property) (string $ "END:" ++ key)
-    newLine
-    update key $ ICalComponent (foldr1 (.) fs M.empty) pos
+import Text.Parsec.Permutation
 
 newLine :: Parser String
 newLine = string "\r\n"
 
-property :: Parser ICalTreeS
-property = do
-    pos <- getPosition
-    key <- manyTill upper $ char ':'
-    value <- toICalDataType key
-    newLine
-    update key value
+property :: Parser a -> String -> Parser a
+property typeParser key = do
+    string $ map toUpper key ++ ":"
+    typeParser
 
-update :: String -> ICalData -> Parser ICalTreeS
-update key param = return $ M.insertWith (++) key [param]
+component :: String -> Parser a -> Parser a
+component key parser = do
+    string $ "BEGIN:" ++ map toUpper key
+    newLine
+    properties <- parser
+    string $ "END:" ++ map toUpper key
+    newLine
+    return properties
+
+reqProp1 typeParser k = oncePerm $ property typeParser k
+optProp1 typeParser k = optionMaybePerm $ property typeParser k
