@@ -12,6 +12,6 @@ import Text.ICalendar.Component.VCalendar
 
 iCalendar :: Parser VCalendar
 iCalendar = do
-    cal <- component "vcalendar" vCalendar
+    cal <- component vCalendar "vcalendar"
     eof
     return cal

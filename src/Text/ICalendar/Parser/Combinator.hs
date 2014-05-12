@@ -1,27 +1,31 @@
 module Text.ICalendar.Parser.Combinator where
 
+-- haskell platform libraries
 import Data.Char
 import Text.Parsec.String
 import Text.Parsec.Char
+import Text.Parsec
 
-import Text.Parsec.Permutation
-
-newLine :: Parser String
-newLine = string "\r\n"
+newLine :: Parser ()
+newLine = string "\r\n" >> notFollowedBy space
 
 property :: Parser a -> String -> Parser a
-property typeParser key = do
-    string $ map toUpper key ++ ":"
-    typeParser
+property typeParser key =
+    try $ do
+      string $ map toUpper key ++ ":"
+      typeParser
 
-component :: String -> Parser a -> Parser a
-component key parser = do
-    string $ "BEGIN:" ++ map toUpper key
-    newLine
-    properties <- parser
-    string $ "END:" ++ map toUpper key
-    newLine
-    return properties
+coProperty :: (Parser a, String) -> (Parser a, String) -> Parser a
+coProperty (typeParser1, key1) (typeParser2, key2) =
+    property typeParser1 key1 <|> property typeParser2 key2
 
-reqProp1 typeParser k = oncePerm $ property typeParser k
-optProp1 typeParser k = optionMaybePerm $ property typeParser k
+component :: Parser a -> String -> Parser a
+component compParser key = do
+    compLine "begin"
+    comp <- compParser
+    compLine "end"
+    return comp
+  where
+    compLine e = do
+        string . map toUpper $ e ++ ":" ++ key
+        newLine
