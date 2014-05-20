@@ -24,8 +24,9 @@ data VCalendar = VCalendar { productId  :: String
                            } deriving (Eq, Show)
 
 vCalendar :: Parser VCalendar
-vCalendar = runPermParser $ VCalendar <$> reqProp1 toText "prodid"
-                                      <*> reqProp1 toText "version"
-                                      <*> optProp1 toText "calscale"
-                                      <*> optProp1 toText "method"
-                                      <*> optCompN vEvent "vevent"
+vCalendar = runPermParser $
+    VCalendar <$> reqProp1 toText "prodid"
+              <*> reqProp1 toText "version"
+              <*> optProp1 toText "calscale"
+              <*> optProp1 toText "method"
+              <*> optCompN vEvent "vevent"

@@ -29,14 +29,15 @@ data VEvent = VEvent { startDate    :: String
                      } deriving (Eq, Show)
 
 vEvent :: Parser VEvent
-vEvent = runPermParser $ VEvent <$> reqProp1 toText "dtstart"
-                                <*> optPropN toText "attendee"
-                                <*> optProp1 toText "organizer"
-                                <*> optProp1 toText "uid"
-                                <*> optProp1 toText "location"
-                                <*> optProp1 toText "summary"
-                                <*> optProp1 toText "description"
-                                <*> optProp1 toText "transp"
-                                <*> reqCoProp1
-                                      (Duration <$> toDuration, "duration")
-                                      (EndDate <$> toText, "dtend")
+vEvent = runPermParser $
+    VEvent <$> reqProp1 toText "dtstart"
+           <*> optPropN toText "attendee"
+           <*> optProp1 toText "organizer"
+           <*> optProp1 toText "uid"
+           <*> optProp1 toText "location"
+           <*> optProp1 toText "summary"
+           <*> optProp1 toText "description"
+           <*> optProp1 toText "transp"
+           <*> reqCoProp1
+                 (Duration <$> toDuration, "duration")
+                 (EndDate <$> toText, "dtend")
