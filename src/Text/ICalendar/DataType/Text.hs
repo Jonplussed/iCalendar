@@ -1,4 +1,4 @@
-module Text.ICalendar.Type.Text ( toText ) where
+module Text.ICalendar.DataType.Text ( toText ) where
 
 import Text.Parsec.String
 import Text.Parsec.Combinator
