@@ -15,4 +15,4 @@ fromFile :: String -> IO ICalendar
 fromFile path = readFile path >>= return . fromString
 
 fromString :: String -> ICalendar
-fromString text =  parse iCalendar "iCalendar" text
+fromString = parse iCalendar "iCalendar"
