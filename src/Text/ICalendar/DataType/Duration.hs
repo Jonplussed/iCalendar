@@ -11,21 +11,18 @@ import Text.Parsec.Prim
 
 import Text.ICalendar.Parser.Combinator
 
-type Sign = Integer -> Integer
-
 toDuration :: Parser DiffTime
 toDuration = do
     sign <- toSign <$> option '+' (char '+' <|> char '-')
     char 'P'
     totalSecs <- durDate <|> durTime <|> durWeek
-    newLine
     return . secondsToDiffTime $ sign totalSecs
 
 -- private functions
 
 durDate :: Parser Integer
 durDate = do
-    daySecs <- 86400 `secondsPer` interval 'D'
+    daySecs <- try $ 86400 `secondsPer` interval 'D'
     timeSecs <- durTime
     return $ daySecs + timeSecs
 
