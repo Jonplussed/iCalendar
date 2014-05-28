@@ -1,5 +1,5 @@
 module Text.ICalendar.DataType.Duration
-( toDuration
+( asDuration
 ) where
 
 import Control.Applicative ((<$>))
@@ -11,11 +11,12 @@ import Text.Parsec.Prim
 
 import Text.ICalendar.Parser.Combinator
 
-toDuration :: Parser DiffTime
-toDuration = do
+asDuration :: Parser DiffTime
+asDuration = do
     sign <- toSign <$> option '+' (char '+' <|> char '-')
     char 'P'
     totalSecs <- durDate <|> durTime <|> durWeek
+    lineBreak
     return . secondsToDiffTime $ sign totalSecs
 
 -- private functions

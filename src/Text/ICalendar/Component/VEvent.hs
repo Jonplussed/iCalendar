@@ -10,8 +10,8 @@ import Text.Parsec.Permutation
 
 -- local libraries
 import Text.ICalendar.Parser.Validator
-import Text.ICalendar.Type.Text
-import Text.ICalendar.Type.Duration
+import Text.ICalendar.DataType.Text
+import Text.ICalendar.DataType.Duration
 
 data Interval = Duration DiffTime
               | EndDate String

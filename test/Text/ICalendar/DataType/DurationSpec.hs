@@ -20,7 +20,7 @@ main = hspec spec
 
 spec :: Spec
 spec = do
-  describe "toDuration" $ do
+  describe "asDuration" $ do
 
     describe "parsing a date-formatted duration" $ do
 
@@ -64,7 +64,7 @@ spec = do
 -- private functions
 
 parse :: String -> Either ParseError DiffTime
-parse = P.parse toDuration "duration"
+parse str = P.parse asDuration "duration datatype" $ str ++ newLine
 
 diffTime :: Integer -> Either a DiffTime
 diffTime = Right . secondsToDiffTime
