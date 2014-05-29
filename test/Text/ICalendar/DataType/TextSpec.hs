@@ -3,10 +3,6 @@ module Text.ICalendar.DataType.TextSpec
 , spec
 ) where
 
--- haskell platform libraries
-import qualified Text.Parsec.Prim as P
-import Text.Parsec.Error (ParseError)
-
 -- foreign libraries
 import Test.Hspec
 
@@ -17,6 +13,9 @@ import Text.ICalendar.DataType.Text
 main :: IO ()
 main = hspec spec
 
+parse :: String -> TestParser String
+parse = parseWith asText
+
 spec :: Spec
 spec = do
   describe "asText" $ do
@@ -26,24 +25,19 @@ spec = do
     describe "parsing a single line of content" $ do
 
       it "parses the line of text" $ do
-        parse line1 `shouldBe` Right line1
+        parse line1 `shouldParseTo` line1
 
     describe "parsing multiple lines of content" $ do
-      let parsed = Right $ line1 ++ " " ++ line2
+      let parsed = line1 ++ " " ++ line2
 
       context "split via newline followed by a space" $ do
 
         it "parses the lines and joins them with a space" $ do
           let lines = line1 ++ "\r\n " ++ line2
-          parse lines `shouldBe` parsed
+          parse lines `shouldParseTo` parsed
 
       context "split via newline followed by a tab" $ do
 
         it "parses the lines and joins them with a space" $ do
           let lines = line1 ++ "\r\n\t" ++ line2
-          parse lines `shouldBe` parsed
-
--- private functions
-
-parse :: String -> Either ParseError String
-parse str = P.parse asText "text datatype" $ str ++ newLine
+          parse lines `shouldParseTo` parsed
