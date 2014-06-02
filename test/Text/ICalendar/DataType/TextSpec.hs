@@ -14,7 +14,7 @@ main :: IO ()
 main = hspec spec
 
 parse :: String -> TestParser String
-parse = parseWith asText
+parse = parseLineWith asText
 
 spec :: Spec
 spec = do

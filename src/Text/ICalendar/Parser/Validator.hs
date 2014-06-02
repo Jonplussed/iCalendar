@@ -9,7 +9,7 @@ import Text.Parsec.Char
 -- foreign libraries
 import Text.Parsec.Permutation
 
--- local libraries
+-- native libraries
 import Text.ICalendar.Parser.Combinator
 
 type Validator a = PermParser String () Identity a
@@ -38,5 +38,5 @@ reqCoProp1 = oncePerm .: coProperty
 -- private functions
 
 (.:) :: (c -> d) -> (a -> b -> c) -> a -> b -> d
-(f .: g) x y = f (g x y)
+(f .: g) x y = f $ g x y
 

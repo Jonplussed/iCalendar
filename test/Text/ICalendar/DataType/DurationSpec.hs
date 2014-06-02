@@ -17,7 +17,7 @@ main :: IO ()
 main = hspec spec
 
 parse :: String -> TestParser DiffTime
-parse = parseWith asDuration
+parse = parseLineWith asDuration
 
 spec :: Spec
 spec = do

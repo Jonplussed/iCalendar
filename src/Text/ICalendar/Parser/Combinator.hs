@@ -6,26 +6,21 @@ import Text.Parsec.String
 import Text.Parsec.Char
 import Text.Parsec
 
-newLine :: Parser ()
-newLine = string "\r\n" >> notFollowedBy space
+lineBreak :: Parser String
+lineBreak = string "\r\n"
 
 property :: Parser a -> String -> Parser a
-property typeParser key =
-    try $ do
-      string $ map toUpper key ++ ":"
-      typeParser
+property typeParser key = do
+    try . string $ key ++ ":"
+    typeParser
 
 coProperty :: (Parser a, String) -> (Parser a, String) -> Parser a
 coProperty (typeParser1, key1) (typeParser2, key2) =
     property typeParser1 key1 <|> property typeParser2 key2
 
 component :: Parser a -> String -> Parser a
-component compParser key = do
-    compLine "begin"
-    comp <- compParser
-    compLine "end"
-    return comp
+component compParser key = between open close compParser
   where
-    compLine e = do
-        string . map toUpper $ e ++ ":" ++ key
-        newLine
+    compLine e = string (e ++ ":" ++ key) >> lineBreak
+    open = compLine "BEGIN"
+    close = compLine "END"
