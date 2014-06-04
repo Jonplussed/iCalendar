@@ -1,4 +1,12 @@
-module Text.ICalendar.Parser.Validator where
+module Text.ICalendar.Parser.Validator
+( optCompN
+, reqCompN
+, optProp1
+, reqProp1
+, optPropN
+, reqPropN
+, reqCoProp1
+) where
 
 -- haskell platform libraries
 import Control.Monad.Identity
@@ -39,4 +47,3 @@ reqCoProp1 = oncePerm .: coProperty
 
 (.:) :: (c -> d) -> (a -> b -> c) -> a -> b -> d
 (f .: g) x y = f $ g x y
-
