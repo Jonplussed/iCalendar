@@ -22,5 +22,5 @@ component :: Parser a -> String -> Parser a
 component compParser key = between open close compParser
   where
     compLine e = string (e ++ ":" ++ key) >> lineBreak
-    open = compLine "BEGIN"
+    open = try $ compLine "BEGIN"
     close = compLine "END"
