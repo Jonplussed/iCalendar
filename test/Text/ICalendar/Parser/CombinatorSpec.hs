@@ -26,6 +26,9 @@ spec = do
     it "parses a key and returns a value" $ do
       parseProperty "PROPERTY:value" `shouldParseTo` "value"
 
+    it "errors in the correct place" $
+      pendingWith "make sure try isn't abused"
+
   describe "coProperty" $ do
     let parseOneOrTwo = parseLineWith $
           coProperty (stubParser, "ONE") (stubParser, "TWO")
@@ -36,9 +39,15 @@ spec = do
     it "parses the second of two given keys and returns the value" $ do
       parseOneOrTwo "TWO:two" `shouldParseTo` "two"
 
+    it "errors in the correct place" $
+      pendingWith "make sure try isn't abused"
+
   describe "component" $ do
     let parseComponent = parseLinesWith $ component stubParser "COMPONENT"
         simpleComponent = [ "BEGIN:COMPONENT", "value", "END:COMPONENT" ]
 
     it "parses anything between begin/end component lines" $ do
       parseComponent simpleComponent `shouldParseTo` "value"
+
+    it "errors in the correct place" $
+      pendingWith "make sure try isn't abused"
