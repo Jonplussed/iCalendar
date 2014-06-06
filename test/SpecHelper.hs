@@ -1,10 +1,12 @@
 module SpecHelper
 ( TestParser
+, fromLines
 , parseWith
 , parseLineWith
 , parseLinesWith
 , shouldFail
 , shouldParseTo
+, shouldSucceed
 , stubParser
 ) where
 
@@ -25,6 +27,9 @@ instance Eq ParseError where
   e1 == e2 = errorPos e1 == errorPos e2 &&
     errorMessages e1 == errorMessages e2
 
+fromLines :: [String] -> String
+fromLines = foldl' (\x xs -> x ++ xs ++ lineBreak) []
+
 parseWith :: Parser a -> String -> TestParser a
 parseWith parser str = parse parser str str
 
@@ -34,12 +39,15 @@ parseLineWith parser str = parse parser str $ str ++ lineBreak
 parseLinesWith :: Parser a -> [String] -> TestParser a
 parseLinesWith parser strs = parse parser str str
   where
-    str = foldl' (\x xs -> x ++ xs ++ lineBreak) [] strs
+    str = fromLines strs
 
-shouldFail :: (Show a) => Either ParseError a -> Expectation
+shouldFail :: (Show a) => TestParser a -> Expectation
 shouldFail parsed = parsed `shouldSatisfy` either (const True) (const False)
 
-shouldParseTo :: (Show a, Eq a) => Either ParseError a -> a -> Expectation
+shouldSucceed :: (Show a) => TestParser a -> Expectation
+shouldSucceed parsed = parsed `shouldSatisfy` either (const False) (const True)
+
+shouldParseTo :: (Show a, Eq a) => TestParser a -> a -> Expectation
 x `shouldParseTo` y = x `shouldBe` Right y
 
 stubParser :: Parser String
