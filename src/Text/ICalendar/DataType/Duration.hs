@@ -15,31 +15,26 @@ asDuration :: Parser DiffTime
 asDuration = do
     sign <- toSign <$> option '+' (char '+' <|> char '-')
     char 'P'
-    totalSecs <- durDate <|> durTime <|> durWeek
+    totalSecs <- durDateTime <|> durWeek
     lineBreak
     return . secondsToDiffTime $ sign totalSecs
 
 -- private functions
 
-durDate :: Parser Integer
-durDate = do
-    daySecs <- try $ 86400 `secondsPer` interval 'D'
-    timeSecs <- durTime
-    return $ daySecs + timeSecs
-
-durTime :: Parser Integer
-durTime = do
+durDateTime :: Parser Integer
+durDateTime = do
+    daySecs  <- 86400 `secondsPer` interval 'D'
     char 'T'
-    hourSecs <- 3600 `secondsPer` interval 'H'
-    minSecs  <- 60   `secondsPer` interval 'M'
-    secs     <- 1    `secondsPer` interval 'S'
-    return $ hourSecs + minSecs + secs
+    hourSecs <- 3600  `secondsPer` interval 'H'
+    minSecs  <- 60    `secondsPer` interval 'M'
+    secs     <- 1     `secondsPer` interval 'S'
+    return $ daySecs + hourSecs + minSecs + secs
 
 durWeek :: Parser Integer
 durWeek = 604800 `secondsPer` interval 'W'
 
 interval :: Char -> Parser Integer
-interval i = manyTill digit (char i) >>= return . read
+interval i = option "0" (try . manyTill digit $ char i) >>= return . read
 
 secondsPer :: Integer -> (Parser Integer -> Parser Integer)
 secondsPer mult = (<$>) (* mult)
