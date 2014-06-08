@@ -45,5 +45,5 @@ reqCoProp1 = oncePerm .: coProperty
 
 -- private functions
 
-(.:) :: (c -> d) -> (a -> b -> c) -> a -> b -> d
+(.:) :: (c -> d) -> (a -> b -> c) -> (a -> b -> d)
 (f .: g) x y = f $ g x y

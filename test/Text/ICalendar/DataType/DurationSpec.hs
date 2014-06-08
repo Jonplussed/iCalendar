@@ -10,17 +10,18 @@ import Data.Time.Clock (DiffTime, secondsToDiffTime)
 import Test.Hspec
 
 -- native libraries
-import SpecHelper
+import Spec.Expectations
+import Spec.Helpers
 import Text.ICalendar.DataType.Duration
 
 main :: IO ()
 main = hspec spec
 
-parse :: String -> TestParser DiffTime
-parse = parseLineWith asDuration
 
 spec :: Spec
 spec = do
+  let parse = parseLineWith durationType
+
   describe "asDuration" $ do
 
     describe "parsing a date-formatted duration" $ do
@@ -37,7 +38,7 @@ spec = do
       it "parses seconds" $ do
         parse "P0DT1S" `shouldParseTo` secondsToDiffTime 1
 
-      it "parses hours, minutes, and seconds" $ do
+      it "parses days, hours, minutes, and seconds" $ do
         parse "P0DT0H0M1S" `shouldParseTo` secondsToDiffTime (1)
 
       it "parses a negative date" $ do

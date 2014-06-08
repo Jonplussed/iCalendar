@@ -7,18 +7,18 @@ module Text.ICalendar.DataType.TextSpec
 import Test.Hspec
 
 -- native libraries
-import SpecHelper
+import Spec.Expectations
+import Spec.Helpers
 import Text.ICalendar.DataType.Text
 
 main :: IO ()
 main = hspec spec
 
-parse :: String -> TestParser String
-parse = parseLineWith asText
-
 spec :: Spec
 spec = do
-  describe "asText" $ do
+  let parse = parseLineWith textType
+
+  describe "textType" $ do
     let line1 = "first line"
         line2 = "second line"
 

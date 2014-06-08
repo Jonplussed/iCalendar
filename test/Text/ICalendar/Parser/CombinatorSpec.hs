@@ -7,7 +7,8 @@ module Text.ICalendar.Parser.CombinatorSpec
 import Test.Hspec
 
 -- native libraries
-import SpecHelper
+import Spec.Expectations
+import Spec.Helpers
 import Text.ICalendar.Parser.Combinator
 
 main :: IO ()
@@ -15,6 +16,7 @@ main = hspec spec
 
 spec :: Spec
 spec = do
+
   describe "lineBreak" $ do
 
     it "parses and returns line-breaks" $ do

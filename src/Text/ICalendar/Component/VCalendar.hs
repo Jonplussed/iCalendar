@@ -1,20 +1,20 @@
 module Text.ICalendar.Component.VCalendar
-( VCalendar (..)
-, CalScale (..)
-, vCalendar
+( CalScale (..)
+, VCalendar (..)
+, parseVCalendar
 ) where
 
 -- haskell platform libraries
-import Control.Applicative
+import Control.Applicative ((<$>), (<*>))
 import Text.Parsec.String
 
 -- foreign libraries
 import Text.Parsec.Permutation
 
 -- native libraries
-import Text.ICalendar.Parser.Validator
-import Text.ICalendar.DataType.Text
 import Text.ICalendar.Component.VEvent
+import Text.ICalendar.DataType.Text
+import Text.ICalendar.Parser.Validator
 
 data CalScale = Gregorian
               | Unsupported String
@@ -22,24 +22,29 @@ data CalScale = Gregorian
 
 data VCalendar = VCalendar { productId  :: String
                            , version    :: String
-                           , scale      :: Maybe CalScale
+                           , scale      :: CalScale
                            , method     :: Maybe String
                            , events     :: [VEvent]
                            } deriving (Eq, Show)
 
-vCalendar :: Parser VCalendar
-vCalendar = properties >>= components
+parseVCalendar :: Parser VCalendar
+parseVCalendar = properties >>= components
   where
+
     properties = runPermParser $
-      VCalendar <$> reqProp1 asText                  "PRODID"
-                <*> reqProp1 asText                  "VERSION"
-                <*> optProp1 (toCalScale <$> asText) "CALSCALE"
-                <*> optProp1 asText                  "METHOD"
-    components partialVCal = runPermParser $
-      partialVCal <$> optCompN vEvent "VEVENT"
+      VCalendar <$> reqProp1 textType "PRODID"
+                <*> reqProp1 textType "VERSION"
+                <*> scale1   textType "CALSCALE"
+                <*> optProp1 textType "METHOD"
+
+    components vCalendar = runPermParser $
+      vCalendar <$> optCompN parseVEvent "VEVENT"
+
+    scale1 par key = toCalScale <$> optProp1 par key
 
 -- private functions
 
-toCalScale :: String -> CalScale
-toCalScale "GREGORIAN" = Gregorian
-toCalScale other = Unsupported other
+toCalScale :: Maybe String -> CalScale
+toCalScale (Just "GREGORIAN") = Gregorian
+toCalScale (Just other)       = Unsupported other
+toCalScale _                  = Gregorian

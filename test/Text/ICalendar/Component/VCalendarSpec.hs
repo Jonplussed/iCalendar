@@ -10,7 +10,8 @@ import Data.List
 import Test.Hspec
 
 -- native libraries
-import SpecHelper
+import Spec.Expectations
+import Spec.Helpers
 import Text.ICalendar.Component.VCalendar
 
 main :: IO ()
@@ -25,12 +26,12 @@ spec = do
 
       appendOnce line  = vCalendarLines ++ [line]
       appendTwice line = vCalendarLines ++ [line, line]
-      parseVCalendar   = parseLinesWith vCalendar
+      parse            = parseLinesWith parseVCalendar
 
   describe "test factory" $ do
 
     it "should generate a valid VCalendar" $ do
-      shouldSucceed $ parseVCalendar vCalendarLines
+      shouldSucceed $ parse vCalendarLines
 
   describe "vCalendar format" $ do
 
@@ -42,51 +43,59 @@ spec = do
     describe "PRODID" $ do
 
       it "requires a product ID" $ do
-        shouldFail . parseVCalendar $ delete prodidLine vCalendarLines
+        shouldFail . parse $ delete prodidLine vCalendarLines
 
       it "cannot have multiple product IDs" $ do
-        shouldFail . parseVCalendar $ appendTwice prodidLine
+        shouldFail . parse $ appendTwice prodidLine
 
       it "sets the \"productId\" record field" $ do
-        let (Right newVCalendar) = parseVCalendar vCalendarLines
+        let (Right newVCalendar) = parse vCalendarLines
         productId newVCalendar `shouldBe` "prodid"
 
     describe "VERSION" $ do
 
       it "requries a version number" $ do
-        shouldFail . parseVCalendar $ delete versionLine vCalendarLines
+        shouldFail . parse $ delete versionLine vCalendarLines
 
       it "cannot have multiple version numbers" $ do
-        shouldFail . parseVCalendar $ appendTwice versionLine
+        shouldFail . parse $ appendTwice versionLine
 
       it "sets the \"version\" record field" $ do
-        let (Right newVCalendar) = parseVCalendar vCalendarLines
+        let (Right newVCalendar) = parse vCalendarLines
         version newVCalendar `shouldBe` "version"
 
     describe "CALSCALE" $ do
       let calscaleLine = "CALSCALE:calscale"
 
       it "can have a single calendar scale" $ do
-        shouldSucceed . parseVCalendar $ appendOnce calscaleLine
+        shouldSucceed . parse $ appendOnce calscaleLine
 
       it "cannot have multiple calendar scales" $ do
-        shouldFail . parseVCalendar $ appendTwice calscaleLine
+        shouldFail . parse $ appendTwice calscaleLine
 
-      it "sets the \"scale\" record field" $ do
-        let (Right newVCalendar) = parseVCalendar $ appendOnce calscaleLine
-        scale newVCalendar `shouldBe` (Just $ Unsupported "calscale")
+      context "with an unrecognized calendar scale" $ do
+        let (Right newVCalendar) = parse $ appendOnce calscaleLine
+
+        it "sets the \"scale\" record field to unsupported" $ do
+          scale newVCalendar `shouldBe` (Unsupported "calscale")
+
+      context "with a Gregorian calendar scale" $ do
+        let (Right newVCalendar) = parse $ appendOnce "CALSCALE:GREGORIAN"
+
+        it "sets the \"scale\" record field to Gregorian" $ do
+          scale newVCalendar `shouldBe` Gregorian
 
     describe "METHOD" $ do
       let methodLine = "METHOD:method"
 
       it "can have a single method" $ do
-        shouldSucceed . parseVCalendar $ appendOnce methodLine
+        shouldSucceed . parse $ appendOnce methodLine
 
       it "cannot have multiple methods" $ do
-        shouldFail . parseVCalendar $ appendTwice methodLine
+        shouldFail . parse $ appendTwice methodLine
 
       it "sets the \"method\" record field" $ do
-        let (Right newVCalendar) = parseVCalendar $ appendOnce methodLine
+        let (Right newVCalendar) = parse $ appendOnce methodLine
         method newVCalendar `shouldBe` Just "method"
 
   describe "vCalendar components" $ do

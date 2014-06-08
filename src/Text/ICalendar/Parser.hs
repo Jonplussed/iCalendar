@@ -1,5 +1,5 @@
 module Text.ICalendar.Parser
-( iCalendar
+( parseICalendar
 ) where
 
 -- haskell platform libraries
@@ -10,8 +10,8 @@ import Text.Parsec.String
 import Text.ICalendar.Parser.Combinator
 import Text.ICalendar.Component.VCalendar
 
-iCalendar :: Parser VCalendar
-iCalendar = do
-    cal <- component vCalendar "VCALENDAR"
+parseICalendar :: Parser VCalendar
+parseICalendar = do
+    cal <- component parseVCalendar "VCALENDAR"
     eof
     return cal

@@ -1,23 +1,25 @@
 module Text.ICalendar.DataType.Duration
-( asDuration
+( durationType
 ) where
 
+-- haskell platform libraries
 import Control.Applicative ((<$>))
-import Data.Time.Clock
+import Data.Time.Clock (DiffTime, secondsToDiffTime)
 import Text.Parsec.String
 import Text.Parsec.Combinator
 import Text.Parsec.Char
 import Text.Parsec.Prim
 
+-- native libraries
 import Text.ICalendar.Parser.Combinator
 
-asDuration :: Parser DiffTime
-asDuration = do
-    sign <- toSign <$> option '+' (char '+' <|> char '-')
+durationType :: Parser DiffTime
+durationType = do
+    signed <- toSign <$> option '+' (char '+' <|> char '-')
     char 'P'
     totalSecs <- durDateTime <|> durWeek
     lineBreak
-    return . secondsToDiffTime $ sign totalSecs
+    return . secondsToDiffTime $ signed totalSecs
 
 -- private functions
 

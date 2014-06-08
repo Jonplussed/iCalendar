@@ -6,7 +6,6 @@ module Text.ICalendar.Parser.Combinator
 ) where
 
 -- haskell platform libraries
-import Data.Char
 import Text.Parsec.String
 import Text.Parsec.Char
 import Text.Parsec

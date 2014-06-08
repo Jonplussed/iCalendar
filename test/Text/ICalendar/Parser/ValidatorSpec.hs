@@ -11,17 +11,12 @@ import Test.Hspec
 import Text.Parsec.Permutation
 
 -- native libraries
-import SpecHelper
+import Spec.Expectations
+import Spec.Helpers
 import Text.ICalendar.Parser.Validator
 
 main :: IO ()
 main = hspec spec
-
-validateWith validator key =
-  parseLinesWith . runPermParser $ validator stubParser key
-
-coValidateWith validator key1 key2 =
-  parseLinesWith . runPermParser $ validator (stubParser, key1) (stubParser, key2)
 
 spec :: Spec
 spec = do
@@ -37,6 +32,12 @@ spec = do
 
       property = ["PROPERTY:value1"]
       properties = property ++ ["PROPERTY:value2"]
+
+      validateWith validator key =
+        parseLinesWith . runPermParser $ validator stubParser key
+
+      coValidateWith validator key1 key2 =
+        parseLinesWith . runPermParser $ validator (stubParser, key1) (stubParser, key2)
 
   describe "optCompN" $ do
 
@@ -106,11 +107,11 @@ spec = do
       coValidateWith reqCoProp1 "PROPERTY1" "PROPERTY2" property2 `shouldParseTo`
         "value2"
 
-    it "errors if the same desired property appears more than once" $ do
+    it "fails if the same desired property appears more than once" $ do
       shouldFail $ coValidateWith reqCoProp1 "PROPERTY1" "PROPERTY2" (property1 ++ property1)
 
-    it "errors if both desired properties appear" $ do
+    it "fails if both desired properties appear" $ do
       shouldFail $ coValidateWith reqCoProp1 "PROPERTY1" "PROPERTY2" (property1 ++ property2)
 
-    it "errors if neither desired properties appears" $ do
+    it "fails if neither desired properties appears" $ do
       shouldFail $ coValidateWith reqCoProp1 "NOTHING1" "NOTHING2" (property1 ++ property2)
